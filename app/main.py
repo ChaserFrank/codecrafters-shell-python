@@ -16,7 +16,7 @@ def main():
 
         if command.startswith("echo"):
             print(command[5:])
-        sys.stdout.flush()
+            sys.stdout.flush()
 
         # Prints the "<command>: command not found" message
         print(f"{command}: command not found")
