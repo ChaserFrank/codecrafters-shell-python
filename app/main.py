@@ -22,7 +22,7 @@ def main():
 
         # Captures the user's command in the "command" variable
         command = input()
-        parts = command.split(" ")
+        parts = command.split()
 
         if not parts:
             continue
@@ -37,16 +37,17 @@ def main():
         elif parts[0] == "type":
              cmd = parts[1]
 
-            if cmd in BUILTINS:
-                    print(f"{cmd} is a shell builtin")
-            else:
-                executable = find_executable(cmd)
+             if cmd in BUILTINS:
+                 print(f"{cmd} is a shell builtin")
+             else:
+                 executable = find_executable(cmd)
 
-                if executable:
-                    print(f"{cmd} is {executable}")
-                else:
-                    print(f"{cmd}: not found")
+                 if executable:
+                     print(f"{cmd} is {executable}")
+                 else:
+                     print(f"{cmd}: not found")
 
+       # unknown command
         else:
             # Prints the "<command>: command not found" message
             print(f"{command}: command not found")
