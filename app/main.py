@@ -15,7 +15,7 @@ def main():
             break
 
         if command.startswith("echo"):
-            print(command)
+            print(command[5:])
 
         # Prints the "<command>: command not found" message
         print(f"{command}: command not found")
