@@ -2,6 +2,8 @@ import sys
 
 
 def main():
+    builtins = {"echo", "exit", "type"}
+
     while True:
         # Display prompt
         sys.stdout.write("$ ")
@@ -9,16 +11,26 @@ def main():
 
         # Captures the user's command in the "command" variable
         command = input()
-
-        # Exit the shell
-        if command == "exit":
-            break
-
         parts = command.split(" ")
 
-        if len(parts) > 0 and parts[0] == "echo":
-            # Prints the arguments passed to the "echo" command
+        if not parts:
+            continue
+
+        # Exit the shell
+        if parts[0] == "exit":
+            break
+
+        elif parts[0] == "echo":
             print(" ".join(parts[1:]))
+
+        elif parts[0] == "type":
+            if len(parts) > 1:
+                cmd = parts[1]
+
+                if cmd in builtins:
+                    print(f"{cmd} is a shell builtin")
+                else:
+                    print(f"{cmd} not found")
 
         else:
             # Prints the "<command>: command not found" message
