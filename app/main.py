@@ -13,5 +13,10 @@ def main():
         # Prints the "<command>: command not found" message
         print(f"{command}: command not found")
 
+        # Exit the shell
+        if command == "exit":
+            break
+                      
+
 if __name__ == "__main__":
     main()
