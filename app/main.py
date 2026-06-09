@@ -14,12 +14,15 @@ def main():
         if command == "exit":
             break
 
-        if command.startswith("echo"):
-            print(command[5:])
-            sys.stdout.flush()
+        parts = command.split(" ")
 
-        # Prints the "<command>: command not found" message
-        print(f"{command}: command not found")
+        if len(parts) > 0 and parts[0] == "echo":
+            # Prints the arguments passed to the "echo" command
+            print(" ".join(parts[1:]))
+
+        else:
+            # Prints the "<command>: command not found" message
+            print(f"{command}: command not found")
 
 
 if __name__ == "__main__":
