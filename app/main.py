@@ -1,9 +1,20 @@
+import os
 import sys
 
+BUILTINS = {"echo", "exit", "type"}
+
+def find_executable(command):
+    path_env = os.environ.get("PATH", "")
+
+    for directory in path_env.split(os.pathsep):
+        full_path = os.path.join(directory, command)
+
+        if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+            return full_path
+
+    return None
 
 def main():
-    builtins = {"echo", "exit", "type"}
-
     while True:
         # Display prompt
         sys.stdout.write("$ ")
@@ -24,13 +35,17 @@ def main():
             print(" ".join(parts[1:]))
 
         elif parts[0] == "type":
-            if len(parts) > 1:
-                cmd = parts[1]
+             cmd = parts[1]
 
-                if cmd in builtins:
+            if cmd in BUILTINS:
                     print(f"{cmd} is a shell builtin")
+            else:
+                executable = find_executable(cmd)
+
+                if executable:
+                    print(f"{cmd} is {executable}")
                 else:
-                    print(f"{cmd} not found")
+                    print(f"{cmd}: not found")
 
         else:
             # Prints the "<command>: command not found" message
