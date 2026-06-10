@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 
 BUILTINS = {"echo", "exit", "type"}
 
@@ -47,11 +48,15 @@ def main():
                  else:
                      print(f"{cmd}: not found")
 
-       # unknown command
+       # executable + unknown command
         else:
-            # Prints the "<command>: command not found" message
-            print(f"{command}: command not found")
-
+            executable = find_executable(parts[0])
+            if executable:
+                # Execute the found executable
+                subprocess.run([executable] + parts[1:])
+            else:
+                # Prints the "<command>: command not found" message
+                print(f"{command}: command not found")
 
 if __name__ == "__main__":
     main()
