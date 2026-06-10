@@ -52,8 +52,10 @@ def main():
         else:
             executable = find_executable(parts[0])
             if executable:
-                # Execute the found executable
-                subprocess.run([executable] + parts[1:])
+                subprocess.run(
+                    [parts[0]] + parts[1:],
+                    executable=executable
+                )
             else:
                 # Prints the "<command>: command not found" message
                 print(f"{command}: command not found")
