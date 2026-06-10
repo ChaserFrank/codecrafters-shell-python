@@ -41,6 +41,9 @@ def main():
         elif parts[0] == "cd":
             directory = parts[1]
 
+            if directory == "~":
+                directory = os.getenv("HOME", "")
+
             try:
                 os.chdir(directory)
             except FileNotFoundError:
