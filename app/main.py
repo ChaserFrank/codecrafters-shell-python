@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import shlex
 
 BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
 
@@ -23,7 +24,7 @@ def main():
 
         # Captures the user's command in the "command" variable
         command = input()
-        parts = command.split()
+        parts = shlex.split(command)
 
         if not parts:
             continue
