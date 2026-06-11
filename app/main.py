@@ -41,20 +41,29 @@ def get_executables():
     return executables
 
 def completer(text, state):
-    commands = BUILTIN_COMPLETIONS + list(get_executables())
+    line = readline.get_line_buffer()
 
-    matches = sorted(
-        cmd for cmd in set(commands)
-        if cmd.startswith(text)
-    )
+    # COMMAND completion
+    if " " not in line:
+        commands = BUILTIN_COMPLETIONS + list(get_executables())
+
+        matches = sorted(
+            cmd for cmd in set(commands)
+            if cmd.startswith(text)
+        )
+
+    # FILENAME completion
+    else:
+        matches = sorted(
+            f for f in os.listdir(".")
+            if f.startswith(text)
+        )
 
     if state >= len(matches):
         return None
 
     completion = matches[state]
 
-    # If there is exactly one possible completion,
-    # append a trailing space.
     if len(matches) == 1:
         completion += " "
 
