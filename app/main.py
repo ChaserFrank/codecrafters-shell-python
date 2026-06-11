@@ -24,7 +24,13 @@ def main():
 
         # Captures the user's command in the "command" variable
         command = input()
+        redirect_file = None
         parts = shlex.split(command)
+
+        if ">" in parts:
+            idx = parts.index(">")
+            redirect_file = parts[idx + 1]
+            parts = parts[:idx]
 
         if not parts:
             continue
@@ -34,7 +40,12 @@ def main():
             break
 
         elif parts[0] == "echo":
-            print(" ".join(parts[1:]))
+            output = " ".join(parts[1:])
+            if redirect_file:
+                with open(redirect_file, "w") as f:
+                    print(output, file=f)
+            else:
+                print(output)
 
         elif parts[0] == "pwd":
             print(os.getcwd())
@@ -67,10 +78,12 @@ def main():
         else:
             executable = find_executable(parts[0])
             if executable:
-                subprocess.run(
-                    [parts[0]] + parts[1:],
-                    executable=executable
-                )
+                with open(redirect_file, "w") as f:
+                    subprocess.run(
+                        [parts[0]] + parts[1:],
+                        executable=executable,
+                        stdout=f
+                    )
             else:
                 # Prints the "<command>: command not found" message
                 print(f"{command}: command not found")
