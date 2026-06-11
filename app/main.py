@@ -44,16 +44,21 @@ def completer(text, state):
     commands = BUILTIN_COMPLETIONS + list(get_executables())
 
     matches = sorted(
-        cmd for cmd in commands
+        cmd for cmd in set(commands)
         if cmd.startswith(text)
     )
 
-    if state < len(matches):
-        if len(matches) == 1:
-            return matches[state] + " "
-        return matches[state]
+    if state >= len(matches):
+        return None
 
-    return None
+    completion = matches[state]
+
+    # If there is exactly one possible completion,
+    # append a trailing space.
+    if len(matches) == 1:
+        completion += " "
+
+    return completion
 
 def main():
     readline.parse_and_bind("tab: complete")
