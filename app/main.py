@@ -2,9 +2,10 @@ import os
 import sys
 import subprocess
 import shlex
+import readline
 
 BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
-
+COMPLETIONS = ["echo", "exit"]
 
 def find_executable(command):
     path_env = os.environ.get("PATH", "")
@@ -17,8 +18,21 @@ def find_executable(command):
 
     return None
 
+def completer(text, state):
+    matches = [
+        cmd for cmd in ["echo", "exit"]
+        if cmd.startswith(text)
+    ]
+
+    if state < len(matches):
+        return matches[state] + " "
+
+    return None
 
 def main():
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
+
     while True:
         # Display prompt
         sys.stdout.write("$ ")
