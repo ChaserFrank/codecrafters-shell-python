@@ -55,11 +55,6 @@ def completer(text, state):
 
 def main():
     readline.parse_and_bind("tab: complete")
-
-    # Show all matches when TAB is pressed twice
-    readline.parse_and_bind("set show-all-if-ambiguous on")
-    readline.parse_and_bind("set completion-query-items 0")
-
     readline.set_completer(completer)
 
     while True:
