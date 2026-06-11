@@ -43,41 +43,36 @@ def get_executables():
 def completer(text, state):
     line = readline.get_line_buffer()
 
-    # Completing command name
-    if " " not in line:
+    # Split the current line
+    words = line.split()
+
+    # Completing the command itself (first word)
+    if len(words) <= 1 and not line.endswith(" "):
         commands = BUILTIN_COMPLETIONS + list(get_executables())
 
         matches = sorted(
             cmd for cmd in set(commands)
             if cmd.startswith(text)
         )
-
-        if state >= len(matches):
-            return None
-
-        completion = matches[state]
-
-        if len(matches) == 1:
-            completion += " "
-
-        return completion
-
-    # Completing filename
     else:
-        matches = sorted(
-            f for f in os.listdir(".")
-            if f.startswith(text)
-        )
+        try:
+            matches = sorted(
+                f for f in os.listdir(".")
+                if f.startswith(text)
+            )
+        except OSError:
+            matches = []
 
-        if state >= len(matches):
-            return None
+    if state >= len(matches):
+        return None
 
-        completion = matches[state][len(text):]
+    match = matches[state]
 
-        if len(matches) == 1:
-            completion += " "
+    # For a single match add a trailing space
+    if len(matches) == 1:
+        return match + " "
 
-        return completion
+    return match
 
 def main():
     readline.parse_and_bind("tab: complete")
