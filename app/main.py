@@ -49,6 +49,8 @@ def completer(text, state):
     )
 
     if state < len(matches):
+        if len(matches) == 1:
+            return matches[state] + " "
         return matches[state]
 
     return None
