@@ -43,18 +43,30 @@ def get_executables():
 def completer(text, state):
     line = readline.get_line_buffer()
 
-    # Split the current line
-    words = line.split()
-
-    # Completing the command itself (first word)
-    if len(words) <= 1 and not line.endswith(" "):
+    # Command completion
+    if " " not in line:
         commands = BUILTIN_COMPLETIONS + list(get_executables())
 
         matches = sorted(
             cmd for cmd in set(commands)
             if cmd.startswith(text)
         )
+
+        if state >= len(matches):
+            return None
+
+        match = matches[state]
+
+        completion = match[len(text):]
+
+        if len(matches) == 1:
+            completion += " "
+
+        return completion
+
+    # Filename completion
     else:
+
         if "/" in text:
             directory, prefix = text.rsplit("/", 1)
 
@@ -62,7 +74,7 @@ def completer(text, state):
 
             try:
                 matches = sorted(
-                    f"{directory}/{entry}"
+                    entry
                     for entry in os.listdir(search_dir)
                     if entry.startswith(prefix)
                 )
@@ -75,18 +87,21 @@ def completer(text, state):
                 if f.startswith(text)
             )
 
-    if state >= len(matches):
-        return None
+        if state >= len(matches):
+            return None
 
-    match = matches[state]
+        match = matches[state]
 
-    # Return only the missing part
-    completion = match[len(text):]
+        # Nested-path completion
+        if "/" in text:
+            completion = match[len(prefix):]
+        else:
+            completion = match[len(text):]
 
-    if len(matches) == 1:
-        completion += " "
+        if len(matches) == 1:
+            completion += " "
 
-    return completion
+        return completion
 
 def main():
     readline.parse_and_bind("tab: complete")
