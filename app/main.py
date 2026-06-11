@@ -57,6 +57,9 @@ def main():
 
         # echo builtin
         elif parts[0] == "echo":
+
+            if stderr_file:
+                open(stderr_file, "w").close()
             output = " ".join(parts[1:])
 
             if stdout_file:
@@ -67,6 +70,9 @@ def main():
 
         # pwd builtin
         elif parts[0] == "pwd":
+
+            if stderr_file:
+                open(stderr_file, "w").close()
             output = os.getcwd()
 
             if stdout_file:
@@ -89,6 +95,9 @@ def main():
 
         # type builtin
         elif parts[0] == "type":
+
+            if stderr_file:
+                open(stderr_file, "w").close()
             cmd = parts[1]
 
             if cmd in BUILTINS:
