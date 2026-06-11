@@ -55,13 +55,25 @@ def completer(text, state):
             if cmd.startswith(text)
         )
     else:
-        try:
+        if "/" in text:
+            directory, prefix = text.rsplit("/", 1)
+
+            search_dir = directory if directory else "."
+
+            try:
+                matches = sorted(
+                    f"{directory}/{entry}"
+                    for entry in os.listdir(search_dir)
+                    if entry.startswith(prefix)
+                )
+            except OSError:
+                matches = []
+
+        else:
             matches = sorted(
                 f for f in os.listdir(".")
                 if f.startswith(text)
             )
-        except OSError:
-            matches = []
 
     if state >= len(matches):
         return None
