@@ -5,7 +5,7 @@ import shlex
 import readline
 
 BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
-COMPLETIONS = ["echo", "exit"]
+BUILTIN_COMPLETIONS = ["echo", "exit"]
 
 def find_executable(command):
     path_env = os.environ.get("PATH", "")
@@ -18,11 +18,37 @@ def find_executable(command):
 
     return None
 
+def get_executables():
+    executables = set()
+
+    path_env = os.environ.get("PATH", "")
+
+    for directory in path_env.split(os.pathsep):
+
+        if not os.path.isdir(directory):
+            continue
+
+        try:
+            for file in os.listdir(directory):
+                full_path = os.path.join(directory, file)
+
+                if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+                    executables.add(file)
+
+        except OSError:
+            pass
+
+    return executables
+
 def completer(text, state):
+    commands = ["echo", "exit"] + list(get_executables())
+
     matches = [
-        cmd for cmd in ["echo", "exit"]
+        cmd for cmd in commands
         if cmd.startswith(text)
     ]
+
+    matches.sort()
 
     if state < len(matches):
         return matches[state] + " "
