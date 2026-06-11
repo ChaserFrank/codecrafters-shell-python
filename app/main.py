@@ -43,18 +43,19 @@ def get_executables():
 def completer(text, state):
     line = readline.get_line_buffer()
 
-    # Split the current line
-    words = line.split()
-
-    # Completing the command itself (first word)
-    if len(words) <= 1 and not line.endswith(" "):
+    # Command completion
+    if " " not in line:
         commands = BUILTIN_COMPLETIONS + list(get_executables())
 
         matches = sorted(
             cmd for cmd in set(commands)
             if cmd.startswith(text)
         )
+
+    # Filename completion
     else:
+
+        # Nested path completion
         if "/" in text:
             directory, prefix = text.rsplit("/", 1)
 
@@ -69,6 +70,7 @@ def completer(text, state):
             except OSError:
                 matches = []
 
+        # Current directory completion
         else:
             matches = sorted(
                 f for f in os.listdir(".")
@@ -78,13 +80,12 @@ def completer(text, state):
     if state >= len(matches):
         return None
 
-    match = matches[state]
+    completion = matches[state]
 
-    # For a single match add a trailing space
     if len(matches) == 1:
-        return match + " "
+        completion += " "
 
-    return match
+    return completion
 
 def main():
     readline.parse_and_bind("tab: complete")
