@@ -5,6 +5,7 @@ import shlex
 
 BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
 
+
 def find_executable(command):
     path_env = os.environ.get("PATH", "")
 
@@ -16,45 +17,65 @@ def find_executable(command):
 
     return None
 
+
 def main():
     while True:
         # Display prompt
         sys.stdout.write("$ ")
         sys.stdout.flush()
 
-        # Captures the user's command in the "command" variable
         command = input()
-        redirect_file = None
+
+        stdout_file = None
+        stderr_file = None
+
         parts = shlex.split(command)
 
+        # Handle stdout redirection (> and 1>)
         if ">" in parts:
             idx = parts.index(">")
-            redirect_file = parts[idx + 1]
+            stdout_file = parts[idx + 1]
             parts = parts[:idx]
 
         elif "1>" in parts:
             idx = parts.index("1>")
-            redirect_file = parts[idx + 1]
+            stdout_file = parts[idx + 1]
+            parts = parts[:idx]
+
+        # Handle stderr redirection (2>)
+        elif "2>" in parts:
+            idx = parts.index("2>")
+            stderr_file = parts[idx + 1]
             parts = parts[:idx]
 
         if not parts:
             continue
 
-        # Exit the shell
+        # exit builtin
         if parts[0] == "exit":
             break
 
+        # echo builtin
         elif parts[0] == "echo":
             output = " ".join(parts[1:])
-            if redirect_file:
-                with open(redirect_file, "w") as f:
+
+            if stdout_file:
+                with open(stdout_file, "w") as f:
                     print(output, file=f)
             else:
                 print(output)
 
+        # pwd builtin
         elif parts[0] == "pwd":
-            print(os.getcwd())
+            output = os.getcwd()
 
+            if stdout_file:
+                with open(stdout_file, "w") as f:
+                    print(output, file=f)
+            else:
+                print(output)
+
+        # cd builtin
         elif parts[0] == "cd":
             directory = parts[1]
 
@@ -66,38 +87,60 @@ def main():
             except FileNotFoundError:
                 print(f"cd: {directory}: No such file or directory")
 
+        # type builtin
         elif parts[0] == "type":
-             cmd = parts[1]
+            cmd = parts[1]
 
-             if cmd in BUILTINS:
-                 print(f"{cmd} is a shell builtin")
-             else:
-                 executable = find_executable(cmd)
+            if cmd in BUILTINS:
+                output = f"{cmd} is a shell builtin"
+            else:
+                executable = find_executable(cmd)
 
-                 if executable:
-                     print(f"{cmd} is {executable}")
-                 else:
-                     print(f"{cmd}: not found")
+                if executable:
+                    output = f"{cmd} is {executable}"
+                else:
+                    output = f"{cmd}: not found"
 
-       # executable + unknown command
+            if stdout_file:
+                with open(stdout_file, "w") as f:
+                    print(output, file=f)
+            else:
+                print(output)
+
+        # External commands
         else:
             executable = find_executable(parts[0])
+
             if executable:
-                if redirect_file:
-                    with open(redirect_file, "w") as f:
+
+                # stdout redirected
+                if stdout_file:
+                    with open(stdout_file, "w") as out:
                         subprocess.run(
                             [parts[0]] + parts[1:],
                             executable=executable,
-                            stdout=f
+                            stdout=out
                         )
+
+                # stderr redirected
+                elif stderr_file:
+                    with open(stderr_file, "w") as err:
+                        subprocess.run(
+                            [parts[0]] + parts[1:],
+                            executable=executable,
+                            stderr=err
+                        )
+
+                # no redirection
                 else:
                     subprocess.run(
                         [parts[0]] + parts[1:],
                         executable=executable
                     )
+
             else:
-                # Prints the "<command>: command not found" message
                 print(f"{command}: command not found")
+
 
 if __name__ == "__main__":
     main()
