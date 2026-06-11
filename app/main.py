@@ -29,6 +29,9 @@ def main():
         stdout_file = None
         stderr_file = None
 
+        stdout_mode = "w"
+        stdout_mode = "a"
+
         parts = shlex.split(command)
 
         # Handle stdout redirection (> and 1>)
@@ -41,6 +44,16 @@ def main():
             idx = parts.index("1>")
             stdout_file = parts[idx + 1]
             parts = parts[:idx]
+
+        elif ">>" in parts:
+            idx = parts.index(">>")
+            stdout_file = parts[idx + 1]
+            stdout_mode = "a"
+
+        elif "1>>" in parts:
+            idx = parts.index("1>>")
+            stdout_file = parts[idx + 1]
+            stdout_mode = "a"
 
         # Handle stderr redirection (2>)
         elif "2>" in parts:
@@ -63,7 +76,7 @@ def main():
             output = " ".join(parts[1:])
 
             if stdout_file:
-                with open(stdout_file, "w") as f:
+                with open(stdout_file, stdout_mode) as f:
                     print(output, file=f)
             else:
                 print(output)
@@ -76,7 +89,7 @@ def main():
             output = os.getcwd()
 
             if stdout_file:
-                with open(stdout_file, "w") as f:
+                with open(stdout_file, stdout_mode) as f:
                     print(output, file=f)
             else:
                 print(output)
@@ -111,8 +124,7 @@ def main():
                     output = f"{cmd}: not found"
 
             if stdout_file:
-                with open(stdout_file, "w") as f:
-                    print(output, file=f)
+                with open(stdout_file, stdout_mode) as f:                    print(output, file=f)
             else:
                 print(output)
 
@@ -124,7 +136,7 @@ def main():
 
                 # stdout redirected
                 if stdout_file:
-                    with open(stdout_file, "w") as out:
+                    with open(stdout_file, stdout_mode) as out:
                         subprocess.run(
                             [parts[0]] + parts[1:],
                             executable=executable,
