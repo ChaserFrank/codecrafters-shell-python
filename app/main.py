@@ -58,11 +58,7 @@ def main():
     readline.set_completer(completer)
 
     while True:
-        # Display prompt
-        sys.stdout.write("$ ")
-        sys.stdout.flush()
-
-        command = input()
+        command = input("$ ")
 
         stdout_file = None
         stderr_file = None
