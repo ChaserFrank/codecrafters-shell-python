@@ -5,7 +5,7 @@ import shlex
 import readline
 
 BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
-BUILTIN_COMPLETIONS = ["echo", "exit"]
+BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
 def find_executable(command):
     path_env = os.environ.get("PATH", "")
@@ -41,23 +41,26 @@ def get_executables():
     return executables
 
 def completer(text, state):
-    commands = ["echo", "exit"] + list(get_executables())
+    commands = BUILTIN_COMPLETIONS + list(get_executables())
 
-    matches = [
+    matches = sorted(
         cmd for cmd in commands
         if cmd.startswith(text)
-    ]
-
-    matches.sort()
+    )
 
     if state < len(matches):
-        return matches[state] + " "
+        return matches[state]
 
     return None
 
 def main():
-    readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
+
+    # Show all matches when TAB is pressed twice
+    readline.parse_and_bind("set show-all-if-ambiguous on")
+    readline.parse_and_bind("set completion-query-items 0")
+
+    readline.set_completer(completer)
 
     while True:
         # Display prompt
