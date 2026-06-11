@@ -32,6 +32,11 @@ def main():
             redirect_file = parts[idx + 1]
             parts = parts[:idx]
 
+        elif "1>" in parts:
+            idx = parts.index("1>")
+            redirect_file = parts[idx + 1]
+            parts = parts[:idx]
+
         if not parts:
             continue
 
@@ -78,11 +83,17 @@ def main():
         else:
             executable = find_executable(parts[0])
             if executable:
-                with open(redirect_file, "w") as f:
+                if redirect_file:
+                    with open(redirect_file, "w") as f:
+                        subprocess.run(
+                            [parts[0]] + parts[1:],
+                            executable=executable,
+                            stdout=f
+                        )
+                else:
                     subprocess.run(
                         [parts[0]] + parts[1:],
-                        executable=executable,
-                        stdout=f
+                        executable=executable
                     )
             else:
                 # Prints the "<command>: command not found" message
