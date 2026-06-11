@@ -30,7 +30,6 @@ def main():
         stderr_file = None
 
         stdout_mode = "w"
-        stdout_mode = "a"
 
         parts = shlex.split(command)
 
@@ -49,11 +48,13 @@ def main():
             idx = parts.index(">>")
             stdout_file = parts[idx + 1]
             stdout_mode = "a"
+            parts = parts[:idx]
 
         elif "1>>" in parts:
             idx = parts.index("1>>")
             stdout_file = parts[idx + 1]
             stdout_mode = "a"
+            parts = parts[:idx]
 
         # Handle stderr redirection (2>)
         elif "2>" in parts:
