@@ -104,6 +104,7 @@ def completer(text, state):
         return completion
 
 def main():
+    readline.set_completer_delims(" \t\n")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(completer)
 
