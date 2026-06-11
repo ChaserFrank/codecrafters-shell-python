@@ -64,6 +64,9 @@ def completer(text, state):
 
     completion = matches[state]
 
+    # Return only the portion not already typed
+    completion = completion[len(text):]
+
     if len(matches) == 1:
         completion += " "
 
