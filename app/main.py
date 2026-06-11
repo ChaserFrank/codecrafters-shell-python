@@ -54,18 +54,18 @@ def completer(text, state):
 
     # FILENAME completion
     else:
-        matches = sorted(
-            f for f in os.listdir(".")
-            if f.startswith(text)
-        )
+        try:
+            matches = sorted(
+                f for f in os.listdir(".")
+                if f.startswith(text)
+            )
+        except OSError:
+            matches = []
 
     if state >= len(matches):
         return None
 
     completion = matches[state]
-
-    # Return only the portion not already typed
-    completion = completion[len(text):]
 
     if len(matches) == 1:
         completion += " "
