@@ -30,6 +30,7 @@ def main():
         stderr_file = None
 
         stdout_mode = "w"
+        stderr_mode = "w"
 
         parts = shlex.split(command)
 
@@ -56,6 +57,12 @@ def main():
             stdout_mode = "a"
             parts = parts[:idx]
 
+        elif "2>>" in parts:
+            idx = parts.index("2>>")
+            stderr_file = parts[idx + 1]
+            stderr_mode = "a"
+            parts = parts[:idx]
+
         # Handle stderr redirection (2>)
         elif "2>" in parts:
             idx = parts.index("2>")
@@ -73,7 +80,7 @@ def main():
         elif parts[0] == "echo":
 
             if stderr_file:
-                open(stderr_file, "w").close()
+                open(stderr_file, stderr_mode).close()
             output = " ".join(parts[1:])
 
             if stdout_file:
@@ -86,7 +93,7 @@ def main():
         elif parts[0] == "pwd":
 
             if stderr_file:
-                open(stderr_file, "w").close()
+                open(stderr_file, stderr_mode).close()
             output = os.getcwd()
 
             if stdout_file:
@@ -111,7 +118,7 @@ def main():
         elif parts[0] == "type":
 
             if stderr_file:
-                open(stderr_file, "w").close()
+                open(stderr_file, stderr_mode).close()
             cmd = parts[1]
 
             if cmd in BUILTINS:
@@ -146,7 +153,7 @@ def main():
 
                 # stderr redirected
                 elif stderr_file:
-                    with open(stderr_file, "w") as err:
+                    with open(stderr_file, stderr_mode) as err:
                         subprocess.run(
                             [parts[0]] + parts[1:],
                             executable=executable,
