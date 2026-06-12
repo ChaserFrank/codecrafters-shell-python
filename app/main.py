@@ -57,7 +57,7 @@ def completer(text, state):
 
         match = matches[state]
 
-        completion = match[len(text):]
+        completion = match
 
         if len(matches) == 1:
             completion += " "
