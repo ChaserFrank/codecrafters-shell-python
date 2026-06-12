@@ -105,7 +105,7 @@ def completer(text, state):
 
             match = matches[state]
 
-            completion = match[len(text):]
+            completion = match
 
             # Directory -> trailing /
             if os.path.isdir(match):
