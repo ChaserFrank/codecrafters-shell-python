@@ -43,8 +43,8 @@ def get_executables():
     return executables
 
 def completer(text, state):
-    words = line.split()
     line = readline.get_line_buffer()
+    words = line.split()
 
     # Command completion
     if " " not in line:
@@ -67,22 +67,23 @@ def completer(text, state):
 
         return completion
 
-    # Registered programmable completion
-    if line.endswith(" ") and words:
+        # Programmable completion
+    if line.endswith(" ") and len(words) >= 1:
         command = words[0]
 
         if command in COMPLETIONS:
             try:
                 result = subprocess.run(
                     [COMPLETIONS[command]],
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     text=True
                 )
 
                 candidates = [
-                    candidate.strip()
-                    for candidate in result.stdout.splitlines()
-                    if candidate.strip()
+                    line.strip()
+                    for line in result.stdout.splitlines()
+                    if line.strip()
                 ]
 
             except Exception:
@@ -91,12 +92,12 @@ def completer(text, state):
             if state >= len(candidates):
                 return None
 
-            completion = candidates[state]
+            candidate = candidates[state]
 
             if len(candidates) == 1:
-                completion += " "
+                candidate += " "
 
-            return completion
+            return candidate
 
     # Filename / directory completion
     else:
