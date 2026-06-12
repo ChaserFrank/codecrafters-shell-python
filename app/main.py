@@ -4,7 +4,7 @@ import subprocess
 import shlex
 import readline
 
-BUILTINS = {"echo", "exit", "type", "pwd", "cd"}
+BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete"}
 BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
 def find_executable(command):
@@ -174,6 +174,9 @@ def main():
         # exit builtin
         if parts[0] == "exit":
             break
+
+        elif parts[0] == "complete":
+            continue
 
         # echo builtin
         elif parts[0] == "echo":
