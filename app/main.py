@@ -7,6 +7,8 @@ import readline
 BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete"}
 BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
+COMPLETIONS = {}
+
 def find_executable(command):
     path_env = os.environ.get("PATH", "")
 
@@ -176,8 +178,26 @@ def main():
             break
 
         elif parts[0] == "complete":
-            if len(parts) >= 3 and parts[1] == "-p":
-                print(f"complete: {parts[2]}: no completion specification")
+
+            # Register completion
+            if len(parts) >= 4 and parts[1] == "-C":
+                script_path = parts[2]
+                command_name = parts[3]
+
+                COMPLETIONS[command_name] = script_path
+
+            # Print completion
+            elif len(parts) >= 3 and parts[1] == "-p":
+                command_name = parts[2]
+
+                if command_name in COMPLETIONS:
+                    print(
+                        f"complete -C '{COMPLETIONS[command_name]}' {command_name}"
+                    )
+                else:
+                    print(
+                        f"complete: {command_name}: no completion specification"
+                    )
 
         # echo builtin
         elif parts[0] == "echo":
