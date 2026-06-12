@@ -5,7 +5,7 @@
 This is a Python implementation of a POSIX-compliant shell, built as part of the
 ["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
 
-In this project, you'll learn about shell command parsing, REPLs, builtin commands, command execution, and I/O redirection.
+In this project, you'll learn about shell command parsing, REPLs, builtin commands, command execution, I/O redirection, and advanced tab completion.
 
 **Note**: If you're viewing this repo on GitHub, head over to
 [codecrafters.io](https://codecrafters.io) to try the challenge.
@@ -14,54 +14,54 @@ In this project, you'll learn about shell command parsing, REPLs, builtin comman
 
 ### Core Shell Features
 - ✅ Interactive REPL (Read-Eval-Print Loop) with prompt (`$`)
-- ✅ Tab completion support for commands
+- ✅ Advanced Tab Completion (see details below)
 - ✅ Command parsing using shell-like syntax (handles quoted strings, escapes)
 
 ### Builtin Commands
 The following builtin commands are implemented:
 
 1. **echo** - Display text
-   - Usage: `echo [text]`
-   - Outputs the provided text to stdout
-
 2. **pwd** - Print working directory
-   - Usage: `pwd`
-   - Displays the current working directory
-
 3. **cd** - Change directory
-   - Usage: `cd [directory]`
-   - Supports `~` for home directory
-   - Shows error message if directory doesn't exist
-
 4. **type** - Display command type
-   - Usage: `type [command]`
-   - Shows if a command is a builtin or external executable
-   - Displays the path to external executables
-   - Shows "not found" if command doesn't exist
-
 5. **exit** - Exit the shell
-   - Usage: `exit`
-   - Cleanly terminates the shell
+6. **complete** - Configure programmable completions
 
 ### External Commands
 - ✅ Command resolution via PATH environment variable
 - ✅ Execution of external programs with arguments
-- ✅ Proper executable permission checking
 
 ### I/O Redirection
-The shell supports the following redirection operators:
+- ✅ Stdout redirection: `>` (overwrite), `>>` (append)
+- ✅ Stderr redirection: `2>` (overwrite), `2>>` (append)
 
-- **Stdout Redirection:**
-  - `command > file` - Write stdout to file (overwrite)
-  - `command 1> file` - Equivalent to `>`
-  - `command >> file` - Append stdout to file
-  - `command 1>> file` - Equivalent to `>>`
+## Tab Completion
 
-- **Stderr Redirection:**
-  - `command 2> file` - Write stderr to file (overwrite)
-  - `command 2>> file` - Append stderr to file
+The shell now features a sophisticated tab completion system:
 
-- **Combined:** Redirection operators can be used with any command (builtin or external)
+- **Command Completion**: Completes built-in commands and external executables found in `$PATH`.
+- **File/Directory Completion**: Completes file and directory paths in the current directory or based on a partial path.
+- **Programmable Completion**: Allows defining custom completion logic for specific commands using the `complete` builtin.
+
+### `complete` Builtin
+
+The `complete` command allows you to register and manage custom completion scripts.
+
+- **Register a completion:**
+  ```sh
+  complete -C /path/to/script.py command_name
+  ```
+  The `script.py` will be executed to generate completion suggestions for `command_name`.
+
+- **View a completion:**
+  ```sh
+  complete -p command_name
+  ```
+
+- **Remove a completion:**
+  ```sh
+  complete -r command_name
+  ```
 
 ## Project Structure
 
@@ -74,7 +74,6 @@ app/
 
 ### Prerequisites
 - Python 3.x
-- `uv` package manager
 
 ### Running the Shell
 
@@ -86,32 +85,6 @@ Or directly:
 
 ```sh
 python app/main.py
-```
-
-### Example Usage
-
-```sh
-$ echo Hello, World!
-Hello, World!
-
-$ pwd
-/home/user/projects
-
-$ cd ~
-$ pwd
-/home/user
-
-$ type echo
-echo is a shell builtin
-
-$ type ls
-ls is /usr/bin/ls
-
-$ echo "Hello" > output.txt
-$ cat output.txt
-Hello
-
-$ echo "Appended" >> output.txt
 ```
 
 ## Testing & Submission
@@ -126,34 +99,29 @@ codecrafters submit
 
 The shell implementation follows this flow:
 
-1. **Display Prompt** - Shows `$` prompt
-2. **Read Input** - Gets user command with readline support
-3. **Parse Command** - Uses `shlex.split()` to parse the command line
-4. **Parse Redirection** - Identifies and extracts redirection operators
-5. **Execute Command** - Routes to builtin or external command handler
-6. **Handle I/O** - Redirects output to files as specified
+1. **Display Prompt** & **Read Input**
+2. **Parse Command** & **Redirection**
+3. **Tab Completion**: The `completer` function is invoked by `readline` to provide suggestions based on the current input line. It checks for command, file/directory, or programmable completions.
+4. **Execute Command**: Routes to a builtin or external command handler.
+5. **Handle I/O**: Redirects output to files as specified.
 
 ### Key Functions
 
-- `find_executable(command)` - Searches PATH for executable
-- `completer(text, state)` - Provides tab completion suggestions
-- `main()` - Main REPL loop handling all shell operations
+- `find_executable(command)`: Searches `$PATH` for an executable.
+- `get_executables()`: Returns a set of all executables in `$PATH`.
+- `completer(text, state)`: The core logic for all tab completion features.
+- `main()`: The main REPL loop.
 
 ## Limitations & Future Work
 
-- [ ] Pipes (`|`) - Connect output of one command to another
-- [ ] Command substitution (`` `command` `` or `$(command)`)
-- [ ] Variable expansion (e.g., `$HOME`, `$PATH`)
-- [ ] Wildcards and globbing (`*`, `?`, `[...]`)
-- [ ] Job control (background processes with `&`)
-- [ ] More complex redirection (e.g., `2>&1`)
-- [ ] Script files support
-- [ ] Aliases and functions
-- [ ] History navigation
+- [ ] Pipes (`|`)
+- [ ] Command substitution (`` `command` ``)
+- [ ] Variable expansion (`$HOME`, `$PATH`)
+- [ ] Job control (`&`)
+- [ ] Script file support
 
 ## Notes
 
-- The shell uses Python's `subprocess` module for executing external commands
-- Tab completion currently supports: `echo`, `exit`
-- The implementation handles both quoted and unquoted arguments correctly
+- The shell uses Python's `subprocess` module for executing external commands and completion scripts.
+- The implementation handles both quoted and unquoted arguments correctly.
 ```

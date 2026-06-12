@@ -255,6 +255,11 @@ def main():
                         f"complete: {command_name}: no completion specification"
                     )
 
+            elif parts[1] == "-r":
+                command = parts[2]
+
+                COMPLETIONS.pop(command, None)
+
         # echo builtin
         elif parts[0] == "echo":
 
