@@ -86,6 +86,11 @@ def completer(text, state):
                 previous_word = ""
 
         try:
+            env = os.environ.copy()
+
+            env["COMP_LINE"] = line
+            env["COMP_POINT"] = str(len(line))
+
             result = subprocess.run(
                 [
                     COMPLETIONS[command],
