@@ -85,7 +85,7 @@ def completer(text, state):
 
             match = matches[state]
 
-            completion = match
+            completion = f"{directory}/{match}"
 
             if os.path.isdir(os.path.join(search_dir, match)):
                 completion += "/"
