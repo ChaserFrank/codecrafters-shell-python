@@ -60,24 +60,41 @@ def completer(text, state):
 
         match = matches[state]
 
-        # completion = match
+        completion = match[len(text):]
 
         if len(matches) == 1:
-            match += " "
+            completion += " "
 
-        return match
+        return completion
 
-        # Programmable completion
-    if (
-            line.endswith(" ")
-            and words
-            and words[0] in COMPLETIONS
-    ):
+    # Programmable completion
+    if words and words[0] in COMPLETIONS:
         command = words[0]
+
+        # Determine current word and previous word
+        if line.endswith(" "):
+            current_word = ""
+
+            if len(words) >= 2:
+                previous_word = words[-1]
+            else:
+                previous_word = ""
+        else:
+            current_word = words[-1]
+
+            if len(words) >= 2:
+                previous_word = words[-2]
+            else:
+                previous_word = ""
 
         try:
             result = subprocess.run(
-                [COMPLETIONS[command]],
+                [
+                    COMPLETIONS[command],
+                    command,
+                    current_word,
+                    previous_word,
+                ],
                 capture_output=True,
                 text=True
             )
@@ -94,7 +111,10 @@ def completer(text, state):
         if state >= len(matches):
             return None
 
-        completion = matches[state]
+        candidate = matches[state]
+
+        # Return only the portion not yet typed
+        completion = candidate[len(current_word):]
 
         if len(matches) == 1:
             completion += " "
