@@ -66,7 +66,6 @@ def completer(text, state):
 
     # Filename / directory completion
     else:
-
         if "/" in text:
             directory, prefix = text.rsplit("/", 1)
 
@@ -86,16 +85,10 @@ def completer(text, state):
 
             match = matches[state]
 
-            full_match = f"{directory}/{match}"
+            completion = match
 
-            # Return only the missing portion
-            completion = full_match[len(text):]
-
-            # Directory -> trailing /
-            if os.path.isdir(full_match):
+            if os.path.isdir(os.path.join(search_dir, match)):
                 completion += "/"
-
-            # File -> trailing space
             elif len(matches) == 1:
                 completion += " "
 
