@@ -68,36 +68,38 @@ def completer(text, state):
         return match
 
         # Programmable completion
-    if line.endswith(" ") and len(words) >= 1:
+    if (
+            line.endswith(" ")
+            and words
+            and words[0] in COMPLETIONS
+    ):
         command = words[0]
 
-        if command in COMPLETIONS:
-            try:
-                result = subprocess.run(
-                    [COMPLETIONS[command]],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
+        try:
+            result = subprocess.run(
+                [COMPLETIONS[command]],
+                capture_output=True,
+                text=True
+            )
 
-                candidates = [
-                    line.strip()
-                    for line in result.stdout.splitlines()
-                    if line.strip()
-                ]
+            matches = [
+                candidate.strip()
+                for candidate in result.stdout.splitlines()
+                if candidate.strip()
+            ]
 
-            except Exception:
-                candidates = []
+        except Exception:
+            matches = []
 
-            if state >= len(candidates):
-                return None
+        if state >= len(matches):
+            return None
 
-            candidate = candidates[state]
+        completion = matches[state]
 
-            if len(candidates) == 1:
-                candidate += " "
+        if len(matches) == 1:
+            completion += " "
 
-            return candidate
+        return completion
 
     # Filename / directory completion
     else:
