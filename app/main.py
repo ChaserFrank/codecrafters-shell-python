@@ -111,10 +111,7 @@ def completer(text, state):
         if state >= len(matches):
             return None
 
-        candidate = matches[state]
-
-        # Return only the portion not yet typed
-        completion = candidate[len(current_word):]
+        completion = matches[state]
 
         if len(matches) == 1:
             completion += " "
