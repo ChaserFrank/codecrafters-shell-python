@@ -94,9 +94,9 @@ def completer(text, state):
 
         # Nested-path completion
         if "/" in text:
-            completion = match[len(prefix):]
+            completion = f"{directory}/{match}"
         else:
-            completion = match[len(text):]
+            completion = match
 
         if len(matches) == 1:
             completion += " "
