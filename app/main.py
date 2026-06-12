@@ -176,7 +176,8 @@ def main():
             break
 
         elif parts[0] == "complete":
-            continue
+            if len(parts) >= 3 and parts[1] == "-p":
+                print(f"complete: {parts[2]}: no completion specification")
 
         # echo builtin
         elif parts[0] == "echo":
