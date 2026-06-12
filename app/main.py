@@ -64,7 +64,7 @@ def completer(text, state):
 
         return completion
 
-    # Filename completion
+    # Filename / directory completion
     else:
 
         if "/" in text:
@@ -81,27 +81,48 @@ def completer(text, state):
             except OSError:
                 matches = []
 
+            if state >= len(matches):
+                return None
+
+            match = matches[state]
+
+            full_match = f"{directory}/{match}"
+
+            # Return only the missing portion
+            completion = full_match[len(text):]
+
+            # Directory -> trailing /
+            if os.path.isdir(full_match):
+                completion += "/"
+
+            # File -> trailing space
+            elif len(matches) == 1:
+                completion += " "
+
+            return completion
+
         else:
             matches = sorted(
                 f for f in os.listdir(".")
                 if f.startswith(text)
             )
 
-        if state >= len(matches):
-            return None
+            if state >= len(matches):
+                return None
 
-        match = matches[state]
+            match = matches[state]
 
-        # Nested-path completion
-        if "/" in text:
-            completion = f"{directory}/{match}"
-        else:
-            completion = match
+            completion = match[len(text):]
 
-        if len(matches) == 1:
-            completion += " "
+            # Directory -> trailing /
+            if os.path.isdir(match):
+                completion += "/"
 
-        return completion
+            # File -> trailing space
+            elif len(matches) == 1:
+                completion += " "
+
+            return completion
 
 def main():
     readline.set_completer_delims(" \t\n")
