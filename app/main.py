@@ -60,12 +60,10 @@ def completer(text, state):
 
         match = matches[state]
 
-        completion = match[len(text):]
-
         if len(matches) == 1:
-            completion += " "
+            match += " "
 
-        return completion
+        return match
 
     # Programmable completion
     if words and words[0] in COMPLETIONS:
