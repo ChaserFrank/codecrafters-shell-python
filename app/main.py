@@ -60,12 +60,12 @@ def completer(text, state):
 
         match = matches[state]
 
-        completion = match
+        # completion = match
 
         if len(matches) == 1:
-            completion += " "
+            match += " "
 
-        return completion
+        return match
 
         # Programmable completion
     if line.endswith(" ") and len(words) >= 1:
