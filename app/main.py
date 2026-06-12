@@ -99,7 +99,8 @@ def completer(text, state):
                     previous_word,
                 ],
                 capture_output=True,
-                text=True
+                text=True,
+                env=env
             )
 
             matches = [
