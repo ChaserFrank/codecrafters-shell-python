@@ -221,6 +221,30 @@ def get_next_job_id():
 
     return job_id
 
+def builtin_output(cmd):
+
+    if cmd[0] == "echo":
+        return " ".join(cmd[1:]) + "\n"
+
+    elif cmd[0] == "pwd":
+        return os.getcwd() + "\n"
+
+    elif cmd[0] == "type":
+
+        target = cmd[1]
+
+        if target in BUILTINS:
+            return f"{target} is a shell builtin\n"
+
+        executable = find_executable(target)
+
+        if executable:
+            return f"{target} is {executable}\n"
+
+        return f"{target}: not found\n"
+
+    return ""
+
 def main():
     readline.set_completer_delims(" \t\n")
     readline.parse_and_bind("tab: complete")
@@ -286,26 +310,69 @@ def main():
             left_cmd = parts[:pipe_index]
             right_cmd = parts[pipe_index + 1:]
 
-            left_exec = find_executable(left_cmd[0])
-            right_exec = find_executable(right_cmd[0])
+            # builtin | builtin
+            if left_cmd[0] in BUILTINS and right_cmd[0] in BUILTINS:
 
-            if left_exec and right_exec:
-                p1 = subprocess.Popen(
-                    left_cmd,
-                    executable=left_exec,
-                    stdout=subprocess.PIPE
-                )
+                print(builtin_output(right_cmd), end="")
 
-                p2 = subprocess.Popen(
-                    right_cmd,
-                    executable=right_exec,
-                    stdin=p1.stdout
-                )
+            # builtin | external
+            elif left_cmd[0] in BUILTINS:
 
-                p1.stdout.close()
+                data = builtin_output(left_cmd)
 
-                p2.wait()
-                p1.wait()
+                right_exec = find_executable(right_cmd[0])
+
+                if right_exec:
+                    p = subprocess.Popen(
+                        right_cmd,
+                        executable=right_exec,
+                        stdin=subprocess.PIPE,
+                        text=True
+                    )
+
+                    p.communicate(data)
+
+            # external | builtin
+            elif right_cmd[0] in BUILTINS:
+
+                left_exec = find_executable(left_cmd[0])
+
+                if left_exec:
+                    p = subprocess.Popen(
+                        left_cmd,
+                        executable=left_exec,
+                        stdout=subprocess.PIPE,
+                        text=True
+                    )
+
+                    # discard pipeline input
+                    p.communicate()
+
+                print(builtin_output(right_cmd), end="")
+
+            # external | external
+            else:
+
+                left_exec = find_executable(left_cmd[0])
+                right_exec = find_executable(right_cmd[0])
+
+                if left_exec and right_exec:
+                    p1 = subprocess.Popen(
+                        left_cmd,
+                        executable=left_exec,
+                        stdout=subprocess.PIPE
+                    )
+
+                    p2 = subprocess.Popen(
+                        right_cmd,
+                        executable=right_exec,
+                        stdin=p1.stdout
+                    )
+
+                    p1.stdout.close()
+
+                    p2.wait()
+                    p1.wait()
 
             continue
 
