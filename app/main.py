@@ -383,36 +383,80 @@ def main():
                 for cmd in command.split("|")
             ]
 
-            pipe_data = None
+            # Special case:
+            # last command is builtin (needed for: ls | type exit)
+            if pipeline_commands[-1][0] in BUILTINS:
 
-            for cmd_parts in pipeline_commands:
+                last_cmd = pipeline_commands[-1]
 
-                # Builtin stage
-                if cmd_parts[0] in BUILTINS:
+                # Run previous stages and discard output
+                if len(pipeline_commands) > 1:
 
-                    pipe_data = builtin_output(cmd_parts)
+                    processes = []
+                    prev_stdout = None
 
-                # External stage
-                else:
+                    for cmd_parts in pipeline_commands[:-1]:
 
-                    executable = find_executable(cmd_parts[0])
+                        executable = find_executable(cmd_parts[0])
 
-                    if not executable:
-                        pipe_data = ""
-                        break
+                        if not executable:
+                            break
 
-                    result = subprocess.run(
-                        cmd_parts,
-                        executable=executable,
-                        input=pipe_data,
-                        capture_output=True,
-                        text=True
-                    )
+                        is_last_external = (
+                                cmd_parts == pipeline_commands[-2]
+                        )
 
-                    pipe_data = result.stdout
+                        proc = subprocess.Popen(
+                            cmd_parts,
+                            executable=executable,
+                            stdin=prev_stdout,
+                            stdout=subprocess.PIPE if is_last_external else subprocess.PIPE,
+                            text=True
+                        )
 
-            if pipe_data:
-                print(pipe_data, end="")
+                        if prev_stdout:
+                            prev_stdout.close()
+
+                        prev_stdout = proc.stdout
+                        processes.append(proc)
+
+                    if processes:
+                        processes[-1].communicate()
+
+                        for proc in processes[:-1]:
+                            proc.wait()
+
+                print(builtin_output(last_cmd), end="")
+                continue
+
+            # Normal pipeline (all external commands)
+            processes = []
+            prev_stdout = None
+
+            for i, cmd_parts in enumerate(pipeline_commands):
+
+                executable = find_executable(cmd_parts[0])
+
+                if not executable:
+                    break
+
+                is_last = (i == len(pipeline_commands) - 1)
+
+                proc = subprocess.Popen(
+                    cmd_parts,
+                    executable=executable,
+                    stdin=prev_stdout,
+                    stdout=None if is_last else subprocess.PIPE
+                )
+
+                if prev_stdout:
+                    prev_stdout.close()
+
+                prev_stdout = proc.stdout
+                processes.append(proc)
+
+            for proc in processes:
+                proc.wait()
 
             continue
 
