@@ -245,7 +245,13 @@ def main():
             break
 
         elif parts[0] == "jobs":
-            continue
+
+            for job in JOBS:
+                print(
+                    f"[{job['id']}]+  "
+                    f"{job['status']:<24}"
+                    f"{job['command']}"
+                )
 
         elif parts[0] == "complete":
 
@@ -353,7 +359,8 @@ def main():
                         "id": job_id,
                         "pid": process.pid,
                         "process": process,
-                        "command": " ".join(parts)
+                        "command": command,
+                        "status": "running"
                     })
 
                     print(f"[{job_id}] {process.pid}")
