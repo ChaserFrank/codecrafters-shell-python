@@ -9,6 +9,9 @@ BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
 COMPLETIONS = {}
 
+JOBS = []
+NEXT_JOB_ID = 1
+
 def find_executable(command):
     path_env = os.environ.get("PATH", "")
 
@@ -180,6 +183,8 @@ def main():
     readline.parse_and_bind("tab: complete")
     readline.set_completer(completer)
 
+    global NEXT_JOB_ID
+
     while True:
         command = input("$ ")
 
@@ -190,6 +195,12 @@ def main():
         stderr_mode = "w"
 
         parts = shlex.split(command)
+
+        background = False
+
+        if parts and parts[-1] == "&":
+            background = True
+            parts.pop()
 
         # Handle stdout redirection (> and 1>)
         if ">" in parts:
@@ -329,30 +340,49 @@ def main():
 
             if executable:
 
-                # stdout redirected
-                if stdout_file:
-                    with open(stdout_file, stdout_mode) as out:
-                        subprocess.run(
-                            [parts[0]] + parts[1:],
-                            executable=executable,
-                            stdout=out
-                        )
-
-                # stderr redirected
-                elif stderr_file:
-                    with open(stderr_file, stderr_mode) as err:
-                        subprocess.run(
-                            [parts[0]] + parts[1:],
-                            executable=executable,
-                            stderr=err
-                        )
-
-                # no redirection
-                else:
-                    subprocess.run(
+                if background:
+                    process = subprocess.Popen(
                         [parts[0]] + parts[1:],
                         executable=executable
                     )
+
+                    job_id = NEXT_JOB_ID
+                    NEXT_JOB_ID += 1
+
+                    JOBS.append({
+                        "id": job_id,
+                        "pid": process.pid,
+                        "process": process,
+                        "command": " ".join(parts)
+                    })
+
+                    print(f"[{job_id}] {process.pid}")
+
+                else:
+                    # stdout redirected
+                    if stdout_file:
+                        with open(stdout_file, stdout_mode) as out:
+                            subprocess.run(
+                                [parts[0]] + parts[1:],
+                                executable=executable,
+                                stdout=out
+                            )
+
+                    # stderr redirected
+                    elif stderr_file:
+                        with open(stderr_file, stderr_mode) as err:
+                            subprocess.run(
+                                [parts[0]] + parts[1:],
+                                executable=executable,
+                                stderr=err
+                            )
+
+                    # no redirection
+                    else:
+                        subprocess.run(
+                            [parts[0]] + parts[1:],
+                            executable=executable
+                        )
 
             else:
                 print(f"{command}: command not found")
