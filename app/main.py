@@ -280,8 +280,7 @@ def main():
 
         elif parts[0] == "jobs":
 
-            # Reap completed jobs first
-            reap_jobs()
+            completed_jobs = []
 
             total_jobs = len(JOBS)
 
@@ -296,12 +295,28 @@ def main():
                 else:
                     marker = " "
 
-                print(
-                    f"[{job['id']}]"
-                    f"{marker}  "
-                    f"{'Running':<24}"
-                    f"{job['command']}"
-                )
+                if job["process"].poll() is None:
+
+                    print(
+                        f"[{job['id']}]"
+                        f"{marker}  "
+                        f"{'Running':<24}"
+                        f"{job['command']}"
+                    )
+
+                else:
+
+                    print(
+                        f"[{job['id']}]"
+                        f"{marker}  "
+                        f"{'Done':<24}"
+                        f"{job['command'].removesuffix(' &')}"
+                    )
+
+                    completed_jobs.append(job)
+
+            for job in completed_jobs:
+                JOBS.remove(job)
 
             continue
 
