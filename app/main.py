@@ -226,8 +226,6 @@ def main():
     readline.parse_and_bind("tab: complete")
     readline.set_completer(completer)
 
-    global NEXT_JOB_ID
-
     while True:
         reap_jobs()
         command = input("$ ")
@@ -280,6 +278,36 @@ def main():
             idx = parts.index("2>")
             stderr_file = parts[idx + 1]
             parts = parts[:idx]
+
+        if "|" in parts:
+
+            pipe_index = parts.index("|")
+
+            left_cmd = parts[:pipe_index]
+            right_cmd = parts[pipe_index + 1:]
+
+            left_exec = find_executable(left_cmd[0])
+            right_exec = find_executable(right_cmd[0])
+
+            if left_exec and right_exec:
+                p1 = subprocess.Popen(
+                    left_cmd,
+                    executable=left_exec,
+                    stdout=subprocess.PIPE
+                )
+
+                p2 = subprocess.Popen(
+                    right_cmd,
+                    executable=right_exec,
+                    stdin=p1.stdout
+                )
+
+                p1.stdout.close()
+
+                p2.wait()
+                p1.wait()
+
+            continue
 
         if not parts:
             continue
