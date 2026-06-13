@@ -10,7 +10,6 @@ BUILTIN_COMPLETIONS = sorted(BUILTINS)
 COMPLETIONS = {}
 
 JOBS = []
-NEXT_JOB_ID = 1
 
 def find_executable(command):
     path_env = os.environ.get("PATH", "")
@@ -210,6 +209,17 @@ def reap_jobs():
 
     for job in completed_jobs:
         JOBS.remove(job)
+
+def get_next_job_id():
+
+    used_ids = {job["id"] for job in JOBS}
+
+    job_id = 1
+
+    while job_id in used_ids:
+        job_id += 1
+
+    return job_id
 
 def main():
     readline.set_completer_delims(" \t\n")
@@ -414,20 +424,17 @@ def main():
             if executable:
 
                 if background:
+                    job_id = get_next_job_id()
                     process = subprocess.Popen(
                         [parts[0]] + parts[1:],
                         executable=executable
                     )
-
-                    job_id = NEXT_JOB_ID
-                    NEXT_JOB_ID += 1
 
                     JOBS.append({
                         "id": job_id,
                         "pid": process.pid,
                         "process": process,
                         "command": command,
-                        "status": "running"
                     })
 
                     print(f"[{job_id}] {process.pid}")
