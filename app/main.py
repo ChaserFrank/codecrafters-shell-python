@@ -303,78 +303,78 @@ def main():
             stderr_file = parts[idx + 1]
             parts = parts[:idx]
 
-        if "|" in parts:
-
-            pipe_index = parts.index("|")
-
-            left_cmd = parts[:pipe_index]
-            right_cmd = parts[pipe_index + 1:]
-
-            # builtin | builtin
-            if left_cmd[0] in BUILTINS and right_cmd[0] in BUILTINS:
-
-                print(builtin_output(right_cmd), end="")
-
-            # builtin | external
-            elif left_cmd[0] in BUILTINS:
-
-                data = builtin_output(left_cmd)
-
-                right_exec = find_executable(right_cmd[0])
-
-                if right_exec:
-                    p = subprocess.Popen(
-                        right_cmd,
-                        executable=right_exec,
-                        stdin=subprocess.PIPE,
-                        text=True
-                    )
-
-                    p.communicate(data)
-
-            # external | builtin
-            elif right_cmd[0] in BUILTINS:
-
-                left_exec = find_executable(left_cmd[0])
-
-                if left_exec:
-                    p = subprocess.Popen(
-                        left_cmd,
-                        executable=left_exec,
-                        stdout=subprocess.PIPE,
-                        text=True
-                    )
-
-                    # discard pipeline input
-                    p.communicate()
-
-                print(builtin_output(right_cmd), end="")
-
-            # external | external
-            else:
-
-                left_exec = find_executable(left_cmd[0])
-                right_exec = find_executable(right_cmd[0])
-
-                if left_exec and right_exec:
-                    p1 = subprocess.Popen(
-                        left_cmd,
-                        executable=left_exec,
-                        stdout=subprocess.PIPE
-                    )
-
-                    p2 = subprocess.Popen(
-                        right_cmd,
-                        executable=right_exec,
-                        stdin=p1.stdout
-                    )
-
-                    p1.stdout.close()
-
-                    p2.wait()
-                    p1.wait()
-
-            continue
+        # if "|" in parts:
+        #
+        #     pipe_index = parts.index("|")
+        #
+        #     left_cmd = parts[:pipe_index]
+        #     right_cmd = parts[pipe_index + 1:]
+        #
+        #     # builtin | builtin
+        #     if left_cmd[0] in BUILTINS and right_cmd[0] in BUILTINS:
+        #
+        #         print(builtin_output(right_cmd), end="")
+        #
+        #     # builtin | external
+        #     elif left_cmd[0] in BUILTINS:
+        #
+        #         data = builtin_output(left_cmd)
+        #
+        #         right_exec = find_executable(right_cmd[0])
+        #
+        #         if right_exec:
+        #             p = subprocess.Popen(
+        #                 right_cmd,
+        #                 executable=right_exec,
+        #                 stdin=subprocess.PIPE,
+        #                 text=True
+        #             )
+        #
+        #             p.communicate(data)
+        #
+        #     # external | builtin
+        #     elif right_cmd[0] in BUILTINS:
+        #
+        #         left_exec = find_executable(left_cmd[0])
+        #
+        #         if left_exec:
+        #             p = subprocess.Popen(
+        #                 left_cmd,
+        #                 executable=left_exec,
+        #                 stdout=subprocess.PIPE,
+        #                 text=True
+        #             )
+        #
+        #             # discard pipeline input
+        #             p.communicate()
+        #
+        #         print(builtin_output(right_cmd), end="")
+        #
+        #     # external | external
+        #     else:
+        #
+        #         left_exec = find_executable(left_cmd[0])
+        #         right_exec = find_executable(right_cmd[0])
+        #
+        #         if left_exec and right_exec:
+        #             p1 = subprocess.Popen(
+        #                 left_cmd,
+        #                 executable=left_exec,
+        #                 stdout=subprocess.PIPE
+        #             )
+        #
+        #             p2 = subprocess.Popen(
+        #                 right_cmd,
+        #                 executable=right_exec,
+        #                 stdin=p1.stdout
+        #             )
+        #
+        #             p1.stdout.close()
+        #
+        #             p2.wait()
+        #             p1.wait()
+        #
+        #     continue
 
         if "|" in command:
 
