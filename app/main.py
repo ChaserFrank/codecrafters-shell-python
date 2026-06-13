@@ -4,7 +4,7 @@ import subprocess
 import shlex
 import readline
 
-BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete"}
+BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete", "jobs"}
 BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
 COMPLETIONS = {}
@@ -233,6 +233,9 @@ def main():
         if parts[0] == "exit":
             break
 
+        elif parts[0] == "jobs":
+            continue
+
         elif parts[0] == "complete":
 
             # Register completion
@@ -316,7 +319,7 @@ def main():
                     output = f"{cmd}: not found"
 
             if stdout_file:
-                with open(stdout_file, stdout_mode) as f:                    print(output, file=f)
+                with open(stdout_file, stdout_mode) as f:   print(output, file=f)
             else:
                 print(output)
 
