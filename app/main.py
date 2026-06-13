@@ -246,28 +246,47 @@ def main():
 
         elif parts[0] == "jobs":
 
+            completed_jobs = []
+
             total_jobs = len(JOBS)
 
             for i, job in enumerate(JOBS):
 
+                process = job["process"]
+
+                finished = process.poll() is not None
+
                 if total_jobs == 1:
                     marker = "+"
-
                 elif i == total_jobs - 1:
                     marker = "+"
-
                 elif i == total_jobs - 2:
                     marker = "-"
-
                 else:
                     marker = " "
 
-                print(
-                    f"[{job['id']}]"
-                    f"{marker}  "
-                    f"{'Running':<24}"
-                    f"{job['command']}"
-                )
+                if finished:
+
+                    print(
+                        f"[{job['id']}]"
+                        f"{marker}  "
+                        f"{'Done':<24}"
+                        f"{job['command'].removesuffix(' &')}"
+                    )
+
+                    completed_jobs.append(job)
+
+                else:
+
+                    print(
+                        f"[{job['id']}]"
+                        f"{marker}  "
+                        f"{'Running':<24}"
+                        f"{job['command']}"
+                    )
+
+            for job in completed_jobs:
+                JOBS.remove(job)
 
             continue
 
