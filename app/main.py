@@ -376,6 +376,45 @@ def main():
 
             continue
 
+        if "|" in command:
+
+            pipeline_commands = [
+                shlex.split(cmd.strip())
+                for cmd in command.split("|")
+            ]
+
+            processes = []
+            previous_stdout = None
+
+            for i, cmd_parts in enumerate(pipeline_commands):
+
+                executable = find_executable(cmd_parts[0])
+
+                if not executable:
+                    break
+
+                is_last = (i == len(pipeline_commands) - 1)
+
+                proc = subprocess.Popen(
+                    cmd_parts,
+                    executable=executable,
+                    stdin=previous_stdout,
+                    stdout=None if is_last else subprocess.PIPE,
+                    text=True
+                )
+
+                if previous_stdout:
+                    previous_stdout.close()
+
+                previous_stdout = proc.stdout
+
+                processes.append(proc)
+
+            for proc in processes:
+                proc.wait()
+
+            continue
+
         if not parts:
             continue
 
