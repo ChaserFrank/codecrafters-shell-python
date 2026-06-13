@@ -383,35 +383,36 @@ def main():
                 for cmd in command.split("|")
             ]
 
-            processes = []
-            previous_stdout = None
+            pipe_data = None
 
-            for i, cmd_parts in enumerate(pipeline_commands):
+            for cmd_parts in pipeline_commands:
 
-                executable = find_executable(cmd_parts[0])
+                # Builtin stage
+                if cmd_parts[0] in BUILTINS:
 
-                if not executable:
-                    break
+                    pipe_data = builtin_output(cmd_parts)
 
-                is_last = (i == len(pipeline_commands) - 1)
+                # External stage
+                else:
 
-                proc = subprocess.Popen(
-                    cmd_parts,
-                    executable=executable,
-                    stdin=previous_stdout,
-                    stdout=None if is_last else subprocess.PIPE,
-                    text=True
-                )
+                    executable = find_executable(cmd_parts[0])
 
-                if previous_stdout:
-                    previous_stdout.close()
+                    if not executable:
+                        pipe_data = ""
+                        break
 
-                previous_stdout = proc.stdout
+                    result = subprocess.run(
+                        cmd_parts,
+                        executable=executable,
+                        input=pipe_data,
+                        capture_output=True,
+                        text=True
+                    )
 
-                processes.append(proc)
+                    pipe_data = result.stdout
 
-            for proc in processes:
-                proc.wait()
+            if pipe_data:
+                print(pipe_data, end="")
 
             continue
 
