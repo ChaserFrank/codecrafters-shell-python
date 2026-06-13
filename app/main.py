@@ -246,12 +246,30 @@ def main():
 
         elif parts[0] == "jobs":
 
-            for job in JOBS:
+            total_jobs = len(JOBS)
+
+            for i, job in enumerate(JOBS):
+
+                if total_jobs == 1:
+                    marker = "+"
+
+                elif i == total_jobs - 1:
+                    marker = "+"
+
+                elif i == total_jobs - 2:
+                    marker = "-"
+
+                else:
+                    marker = " "
+
                 print(
-                    f"[{job['id']}]+  "
-                    f"{job['status']:<24}"
+                    f"[{job['id']}]"
+                    f"{marker}  "
+                    f"{'Running':<24}"
                     f"{job['command']}"
                 )
+
+            continue
 
         elif parts[0] == "complete":
 
