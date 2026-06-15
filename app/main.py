@@ -248,6 +248,20 @@ def builtin_output(cmd):
     return ""
 
 def main():
+    histfile = os.environ.get("HIST FILE")
+
+    if histfile:
+        try:
+            with open(histfile, "r") as f:
+                for line in f:
+                    line = line.rstrip("\n")
+
+                    if line:
+                        HISTORY.append(line)
+
+        except FileNotFoundError:
+            pass
+
     readline.set_completer_delims(" \t\n")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(completer)
