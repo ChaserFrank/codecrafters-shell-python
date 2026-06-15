@@ -472,8 +472,17 @@ def main():
 
         elif parts[0] == "history":
 
-            for index, cmd in enumerate(HISTORY, start=1):
-                print(f"{index:>5}  {cmd}")
+            # history
+            if len(parts) == 1:
+                start = 0
+
+            # history N
+            else:
+                n = int(parts[1])
+                start = max(0, len(HISTORY) - n)
+
+            for index in range(start, len(HISTORY)):
+                print(f"{index + 1:>5}  {HISTORY[index]}")
 
         elif parts[0] == "jobs":
 
