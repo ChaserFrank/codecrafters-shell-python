@@ -4,7 +4,7 @@ import subprocess
 import shlex
 import readline
 
-BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete", "jobs", "history"}
+BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete", "jobs", "history", "declare"}
 BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
 COMPLETIONS = {}
