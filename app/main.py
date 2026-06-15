@@ -487,6 +487,13 @@ def main():
                 except FileNotFoundError:
                     pass
 
+            elif len(parts) == 3 and parts[1] == "-w":
+                history_file = parts[2]
+
+                with open(history_file, "w") as f:
+                    for command in HISTORY:
+                        f.write(command + "\n")
+
             # history
             elif len(parts) == 1:
                 for index, cmd in enumerate(HISTORY, start=1):
