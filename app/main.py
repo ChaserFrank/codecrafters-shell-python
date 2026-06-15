@@ -472,17 +472,33 @@ def main():
 
         elif parts[0] == "history":
 
+            # history -r <file>
+            if len(parts) == 3 and parts[1] == "-r":
+                history_file = parts[2]
+
+                try:
+                    with open(history_file, "r") as f:
+                        for line in f:
+                            line = line.rstrip("\n")
+
+                            if line:
+                                HISTORY.append(line)
+
+                except FileNotFoundError:
+                    pass
+
             # history
-            if len(parts) == 1:
-                start = 0
+            elif len(parts) == 1:
+                for index, cmd in enumerate(HISTORY, start=1):
+                    print(f"{index:>5}  {cmd}")
 
             # history N
             else:
                 n = int(parts[1])
                 start = max(0, len(HISTORY) - n)
 
-            for index in range(start, len(HISTORY)):
-                print(f"{index + 1:>5}  {HISTORY[index]}")
+                for index in range(start, len(HISTORY)):
+                    print(f"{index + 1:>5}  {HISTORY[index]}")
 
         elif parts[0] == "jobs":
 
