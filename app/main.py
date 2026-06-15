@@ -279,15 +279,17 @@ def expand_variables(parts):
 
     for part in parts:
 
-        if part.startswith("$"):
-            var_name = part[1:]
+        def replace_var(match):
+            var_name = match.group(1)
+            return SHELL_VARS.get(var_name, "")
 
-            expanded.append(
-                SHELL_VARS.get(var_name, "")
-            )
+        expanded_part = re.sub(
+            r'\$([A-Za-z_][A-Za-z0-9_]*)',
+            replace_var,
+            part
+        )
 
-        else:
-            expanded.append(part)
+        expanded.append(expanded_part)
 
     return expanded
 
