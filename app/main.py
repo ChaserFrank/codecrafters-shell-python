@@ -8,6 +8,7 @@ BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete", "jobs", "history"}
 BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
 COMPLETIONS = {}
+HISTORY = []
 
 JOBS = []
 
@@ -254,6 +255,8 @@ def main():
         reap_jobs()
         command = input("$ ")
 
+        HISTORY.append(command)
+
         stdout_file = None
         stderr_file = None
 
@@ -466,6 +469,11 @@ def main():
         # exit builtin
         if parts[0] == "exit":
             break
+
+        elif parts[0] == "history":
+
+            for index, cmd in enumerate(HISTORY, start=1):
+                print(f"{index:>5}  {cmd}")
 
         elif parts[0] == "jobs":
 
