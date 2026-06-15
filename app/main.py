@@ -3,6 +3,7 @@ import sys
 import subprocess
 import shlex
 import readline
+import re
 
 BUILTINS = {"echo", "exit", "type", "pwd", "cd", "complete", "jobs", "history", "declare"}
 BUILTIN_COMPLETIONS = sorted(BUILTINS)
@@ -269,6 +270,9 @@ def save_history_on_exit():
     with open(histfile, "w") as f:
         for cmd in HISTORY:
             f.write(cmd + "\n")
+
+def is_valid_identifier(name):
+    return re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', name) is not None
 
 def main():
     readline.set_completer_delims(" \t\n")
@@ -545,8 +549,14 @@ def main():
         elif parts[0] == "declare":
 
             if len(parts) >= 2 and "=" in parts[1]:
-                name, value = parts[1].split("=", 1)
-                SHELL_VARS[name] = value
+                assignment = parts[1]
+
+                name, value = assignment.split("=", 1)
+
+                if not is_valid_identifier(name):
+                    print(f"declare: `{assignment}': not a valid identifier")
+                else:
+                    SHELL_VARS[name] = value
 
             elif len(parts) >= 3 and parts[1] == "-p":
                 name = parts[2]
