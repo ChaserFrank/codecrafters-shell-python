@@ -10,6 +10,7 @@ BUILTIN_COMPLETIONS = sorted(BUILTINS)
 COMPLETIONS = {}
 HISTORY = []
 LAST_APPENDED_INDEX = 0
+SHELL_VARS = {}
 
 JOBS = []
 
@@ -543,9 +544,17 @@ def main():
 
         elif parts[0] == "declare":
 
-            if len(parts) >= 3 and parts[1] == "-p":
-                variable = parts[2]
-                print(f"declare: {variable}: not found")
+            if len(parts) >= 2 and "=" in parts[1]:
+                name, value = parts[1].split("=", 1)
+                SHELL_VARS[name] = value
+
+            elif len(parts) >= 3 and parts[1] == "-p":
+                name = parts[2]
+
+                if name in SHELL_VARS:
+                    print(f'declare -- {name}="{SHELL_VARS[name]}"')
+                else:
+                    print(f"declare: {name}: not found")
 
         elif parts[0] == "jobs":
 
