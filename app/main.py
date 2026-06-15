@@ -9,6 +9,7 @@ BUILTIN_COMPLETIONS = sorted(BUILTINS)
 
 COMPLETIONS = {}
 HISTORY = []
+LAST_APPENDED_INDEX = 0
 
 JOBS = []
 
@@ -471,6 +472,7 @@ def main():
             break
 
         elif parts[0] == "history":
+            global LAST_APPENDED_INDEX
 
             # history -r <file>
             if len(parts) == 3 and parts[1] == "-r":
@@ -493,6 +495,15 @@ def main():
                 with open(history_file, "w") as f:
                     for command in HISTORY:
                         f.write(command + "\n")
+
+            elif len(parts) == 3 and parts[1] == "-a":
+                history_file = parts[2]
+
+                with open(history_file, "a") as f:
+                    for command in HISTORY[LAST_APPENDED_INDEX:]:
+                        f.write(command + "\n")
+
+                LAST_APPENDED_INDEX = len(HISTORY)
 
             # history
             elif len(parts) == 1:
