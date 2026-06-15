@@ -541,6 +541,12 @@ def main():
                 for index in range(start, len(HISTORY)):
                     print(f"{index + 1:>5}  {HISTORY[index]}")
 
+        elif parts[0] == "declare":
+
+            if len(parts) >= 3 and parts[1] == "-p":
+                variable = parts[2]
+                print(f"declare: {variable}: not found")
+
         elif parts[0] == "jobs":
 
             completed_jobs = []
