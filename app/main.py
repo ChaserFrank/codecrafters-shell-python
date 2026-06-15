@@ -247,21 +247,19 @@ def builtin_output(cmd):
 
     return ""
 
+histfile = os.environ.get("HISTFILE")
+
+if histfile and os.path.exists(histfile):
+    with open(histfile, "r") as f:
+        for line in f:
+            line = line.rstrip("\n")
+
+            if line:  # ignore empty lines
+                HISTORY.append(line)
+
+    LAST_APPENDED_INDEX = len(HISTORY)
+
 def main():
-    histfile = os.environ.get("HIST FILE")
-
-    if histfile:
-        try:
-            with open(histfile, "r") as f:
-                for line in f:
-                    line = line.rstrip("\n")
-
-                    if line:
-                        HISTORY.append(line)
-
-        except FileNotFoundError:
-            pass
-
     readline.set_completer_delims(" \t\n")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(completer)
