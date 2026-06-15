@@ -259,6 +259,16 @@ if histfile and os.path.exists(histfile):
 
     LAST_APPENDED_INDEX = len(HISTORY)
 
+def save_history_on_exit():
+    histfile = os.environ.get("HISTFILE")
+
+    if not histfile:
+        return
+
+    with open(histfile, "w") as f:
+        for cmd in HISTORY:
+            f.write(cmd + "\n")
+
 def main():
     readline.set_completer_delims(" \t\n")
     readline.parse_and_bind("tab: complete")
@@ -481,6 +491,7 @@ def main():
 
         # exit builtin
         if parts[0] == "exit":
+            save_history_on_exit()
             break
 
         elif parts[0] == "history":
