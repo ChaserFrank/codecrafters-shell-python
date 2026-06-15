@@ -274,6 +274,23 @@ def save_history_on_exit():
 def is_valid_identifier(name):
     return re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', name) is not None
 
+def expand_variables(parts):
+    expanded = []
+
+    for part in parts:
+
+        if part.startswith("$"):
+            var_name = part[1:]
+
+            expanded.append(
+                SHELL_VARS.get(var_name, "")
+            )
+
+        else:
+            expanded.append(part)
+
+    return expanded
+
 def main():
     readline.set_completer_delims(" \t\n")
     readline.parse_and_bind("tab: complete")
@@ -292,6 +309,7 @@ def main():
         stderr_mode = "w"
 
         parts = shlex.split(command)
+        parts = expand_variables(parts)
 
         background = False
 
