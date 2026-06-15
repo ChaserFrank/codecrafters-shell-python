@@ -279,17 +279,21 @@ def expand_variables(parts):
 
     for part in parts:
 
-        def replace_var(match):
-            var_name = match.group(1)
-            return SHELL_VARS.get(var_name, "")
-
-        expanded_part = re.sub(
-            r'\$([A-Za-z_][A-Za-z0-9_]*)',
-            replace_var,
+        # Expand ${VAR}
+        part = re.sub(
+            r'\$\{([A-Za-z_][A-Za-z0-9_]*)\}',
+            lambda m: SHELL_VARS.get(m.group(1), ""),
             part
         )
 
-        expanded.append(expanded_part)
+        # Expand $VAR
+        part = re.sub(
+            r'\$([A-Za-z_][A-Za-z0-9_]*)',
+            lambda m: SHELL_VARS.get(m.group(1), ""),
+            part
+        )
+
+        expanded.append(part)
 
     return expanded
 
