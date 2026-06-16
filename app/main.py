@@ -317,6 +317,11 @@ def main():
         parts = shlex.split(command)
         parts = expand_variables(parts)
 
+        parts = [part for part in parts if part != ""]
+
+        if not parts:
+            continue
+
         background = False
 
         if parts and parts[-1] == "&":
